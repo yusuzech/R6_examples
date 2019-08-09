@@ -11,42 +11,21 @@ Bank <- R6Class(
         },
         
         issue_account_to = function(owner_name){
-            account_id1 <- paste0(self$name,self$number_of_accounts)
-            account_id2 <- paste0(self$name,self$number_of_accounts + 1)
+            account_id <- paste0(self$name,self$number_of_accounts)
             
-            checking <- Account$new(
-                id = account_id1,
+            new_account <- Account$new(
+                id = account_id,
                 type = "Checking",
-                owner = owner_name,
-                linked_account = account_id2,
-                amount = 0
-            )
-            saving <- Account$new(
-                id = account_id2,
-                type = "Checking",
-                owner = owner_name,
-                linked_account = account_id1,
-                amount = 0
+                owner = owner_name
             )
             
-            new_account_set <- list(
-                owner_name = list(
-                    checking = checking,
-                    saving = saving
-                )
-            )
             
-            names(new_account_set) <- owner_name
+            self$accounts = append(self$accounts,new_account)
             
-            self$accounts = append(self$accounts,new_account_set)
-            
-            self$number_of_accounts <- self$number_of_accounts + 2
+            self$number_of_accounts <- self$number_of_accounts + 1
             
             return(
-                list(
-                    checking = checking,
-                    saving = saving
-                )
+                new_account
             )
         },
         
