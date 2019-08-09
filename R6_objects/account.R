@@ -1,41 +1,50 @@
 Account <- R6Class(
     classname = "Account",
     public = list(
-        id = NULL,
-        type = NULL,
-        owner = NULL,
-        linked_account = NULL,
-        amount = 0,
-        initialize = function(id,type,owner,linked_account,amount){
-            stopifnot(!is.null(id))
-            stopifnot(!is.null(type))
-            self$id <- id
-            self$type <- type
-            self$owner <- owner
-            self$linked_account <- linked_account
-            self$amount <- amount
+        account_group = list(
+            owner = NULL,
+            saving = list(
+                id = NULL,
+                type = NULL,
+                amount = 0,
+            ),
+            checking = list(
+                id = NULL,
+                type = NULL,
+                amount = 0,
+            )
+        ),
+        
+        initialize = function(id,type,owner){
+            stopifnot(!any(is.null(id,type,owner)))
+            self$account_group$saving$id <- paste0(id,"saving")
+            self$account_group$checking$id <- paste0(id,"saving")
+            self$account_group$saving$type <- "saving"
+            self$account_group$checking$type <- "checking"
+            self$account_group$owner <- owner
         },
         
         print = function(){
-            cat("Account ID: ",self$id,"\n")
-            cat("Account Type: ",self$type,"\n")
-            cat("Account Owner: ",self$owner,"\n")
-            cat("Linked Account:",self$linked_account,"\n")
-            cat("Account Amount: ",self$amount,"\n")
+            print(self$account_group)
         },
         
-        deposit = function(amount){
+        deposit = function(account_type,amount){
             stopifnot(amount > 0)
-            self$amount <- self$amount + amount
+            stopifnot(account_type %in% c("saving","checking"))
+            self_val <- self$account_group[[account_type]][["amount"]]
+            self$account_group[[account_type]][["amount"]] <- self_val + amount
             invisible(self)
         },
         
-        withdraw = function(amount){
+        withdraw = function(account_type,amount){
             stopifnot(amount > 0)
-            if(amount > self$amount){
-                stop("Not Enough balance")
+            stopifnot(account_type %in% c("saving","checking"))
+            self_val <- self$account_group[[account_type]][["amount"]]
+            
+            if(amount > self_val){
+                print("withdraw Failed")
             } else {
-                self$amount <- self$amount - amount
+                self$account_group[[account_type]][["amount"]] <- self_val - amount
                 invisible(self)
             }
         }
